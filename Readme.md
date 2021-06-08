@@ -1,51 +1,126 @@
-# opsManBottle
-# Purpose command to pull measurement from Ops Manager
-# Measurements will be scraped for Prometheus
-# GPI October 2019
+## AtlasAccessScraper
+Creation Date : June 2021 
+
+### Brief
+
+* Purpose command to pull access events from Atlas.
+* Events are filtered with authResult=False and counted
+* Routes for targeted cluster names
+* Routes for dynamical discovery of existing cluster in the same project
+* Routes to format resulting counting into compliant format for Prometheus
+
+### Atlas Reference doc
+* https://docs.atlas.mongodb.com/reference/api/access-tracking/#access-tracking
 
 
-## Dependencies
+### Dependencies
+* bottle==0.12.19
+* PyYAML==5.4.1
+* requests==2.25.1
+* timeloop==1.0.2
+* urllib3==1.26.5
 
-PyYAML	5.1.2	5.1.2
-bottle	0.12.17	0.12.17
-certifi	2019.9.11	2019.9.11
-chardet	3.0.4	3.0.4
-idna	2.8	2.8
-requests	2.22.0	2.22.0
-setuptools	40.8.0	41.4.0
-urllib3	1.25.6	1.25.6
+### Usages
+
+Helper example :
+```shell
+$ python3 f_atlasScraper.py --publicKey <yourPublic> --privateKey <yourPrivate> --cfg f_atlasScraper_PS.yml --help
+
+usage: f_atlasScraper.py [-h] --publicKey PUBLICKEY --privateKey PRIVATEKEY
+                         --cfg CFG [--verbose]
+
+http Atlas proxy rest-end point
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+Required arguments:
+  --publicKey PUBLICKEY Atlas publicKey
+  --privateKey PRIVATEKEY Atlas privateKey
+  --cfg CFG             Configuration yaml file
+
+Optional arguments:
+  --verbose             Enable stdout printing of logs
+```
+
+Requires yaml configuration file :
+````yaml
+net:
+  port: 8080
+  bindIP: 0.0.0.0
+
+topology:
+  groupID: "<yourAtlasProjectId>"
+
+scraper:
+  start: true
+  deltaUnit : seconds
+  deltaValue : 900
+````
+### Routes
+
+* Basic healthcheck
+
+```shell
+$ curl --request GET http://localhost:8080/ready
+{
+    "happy": "yes",
+    "statusCode": 200
+}
+```
+
+* authResult False accesses for targeted clustername
+```shell
+$ curl --request GET http://localhost:8080/accesses/<clusterName>
+{
+    "count": 6,
+    "detectionDate": "2021-06-08 15:56:32.588876",
+    "statusCode": 200,
+    "detections": [
+        {
+            "authResult": false,
+            "authSource": "admin",
+            "failureReason": "UserNotFound: Could not find user \"TARZAN\" for db \"admin\"",
+            "groupId": "xxxx",
+            "hostname": "xxxx",
+            "ipAddress": "xxxxx",
+            "logLine": "xxxxx",
+            "timestamp": "Tue Jun 08 15:49:25 GMT 2021",
+            "username": "TARZAN"
+        }],
+        ...
+}
+```
+* Custom formatted count for targeted clustername
+````shell
+$ curl --request GET http://localhost:8080/accesses/<clusterName>/toProm
+atlas_metrics{projectID="xxxxx",cluster="xxxx"}6
+````
+
+* Custom formatted count for discovered clusternames
+````shell
+$ curl --request GET http://localhost:8080/accesses//toProm
+atlas_metrics{projectID="xxxxx",cluster="xxxx"}6
+atlas_metrics{projectID="xxxxx",cluster="yyyyy"}10
+````
+
+### Prometheus configuration
+Sample job definition
+````yaml
+  - job_name: 'atlas_metrics'
+    scrape_interval: 15s
+    metrics_path: /accesses/toProm
+    static_configs:
+    - targets: ['localhost:8080']
+      labels:
+        group: 'atlas_metrics'
+````
+
+#### Release notes :
+1.0  June 2021
+- Start parameter accept minutes or seconds only. Consolidation required
+- Project identifier should be expose in the routes instead of configured
 
 
-## Usages
-
->>  python f_opsmanBottle.py --url "https://ec2-3-9-206-23.eu-west-2.compute.amazonaws.com:8443" --username opsmgr@example.com --key 78f1291f-1d9f-44a8-b8aa-77ccb69074a1 --cfg f_opsmanBottle.yml 
-WARNING: Executing a script that is loading libcrypto in an unsafe way. This will fail in a future version of macOS. Set the LIBRESSL_REDIRECT_STUB_ABORT=1 in the environment to force this into an error.
-f_opsmanBottle.py :: Configuration file found f_opsmanBottle.yml
-f_opsmanBottle.py :: Mapping Project: GPIProj and Cluster: shGPI_0
-f_opsmanBottle.py :: cluster is found. Bottle is proceeding ... 
-f_opsmanBottle.py :: Ops Manager Proxy starts listening on 0.0.0.0:8080
-Bottle v0.12.13 server starting up (using WSGIRefServer())...
-Listening on http://0.0.0.0:8080/
-Hit Ctrl-C to quit.
-...
-
-
-Typical API ressource request generated
->> curl -k --user "opsmgr@example.com:78f1291f-1d9f-44a8-b8aa-77ccb69074a1" --digest  --header "Accept: application/json"  --include --request GET https://ec2-3-9-206-23.eu-west-2.compute.amazonaws.com:8443/api/public/v1.0/groups/5d5bde680c5cd368e9cb29a3/hosts/?pretty=true&clusterId=5d5be5a40c5cd368e9cb3543
-
-
->> curl http://localhost:8080/alive
-{"errorCode":"NONE","version":"1","status":"OK"}
-
-
-## Version notes :
-1.0 octobre 2019
- - replica Set only
- - hostname not in the metric label
-
-1.3 octobre 2019:
- - shard compatible
- - hostname in the metrics label
- - few coding enhancement
 
 

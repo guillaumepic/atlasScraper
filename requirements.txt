@@ -1,0 +1,8 @@
+bottle==0.12.19
+certifi==2021.5.30
+chardet==4.0.0
+idna==2.10
+PyYAML==5.4.1
+requests==2.25.1
+timeloop==1.0.2
+urllib3==1.26.5

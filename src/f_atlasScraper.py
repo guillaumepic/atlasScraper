@@ -216,9 +216,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="http Atlas proxy rest-end point")
     required = parser.add_argument_group("Required arguments")
 
-    required.add_argument("--publicKey", help="Atlas user name (email)",
+    required.add_argument("--publicKey", help="Atlas public key",
                           required=True)
-    required.add_argument("--privateKey", help="API key to use", required=True)
+    required.add_argument("--privateKey", help="Atlas secret key", required=True)
     required.add_argument("--cfg", help="Configuration yaml file",
                           required=True,
                           default="f_atlasScraper.yml")
