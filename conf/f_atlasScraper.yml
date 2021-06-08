@@ -1,0 +1,11 @@
+net:
+  port: 8080
+  bindIP: 0.0.0.0
+
+topology:
+  groupID: "5ab0e0483b34b91892be7c28"
+
+scraper:
+  start: true
+  deltaUnit : seconds
+  deltaValue : 900

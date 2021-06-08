@@ -1,0 +1,103 @@
+{
+	"info": {
+		"_postman_id": "a1ec741a-2154-42ac-b1f7-02b7ceb567c6",
+		"name": "Atlas Scraper",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET /ready",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/settings",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"settings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET /accesses/TO7",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/accesses/TO7",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"accesses",
+						"TO7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET /accesses/TO7/toProm",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"CLUSTER\": \"rsGPI00\",\n    \"M\": [\n        \"DOCUMENT_METRICS_INSERTED\",\n        \"DOCUMENT_METRICS_UPDATED\",\n        \"OPCOUNTER_UPDATE\",\n        \"OPCOUNTER_INSERT\",\n        \"OP_EXECUTION_TIME_WRITES\",\n        \"PROCESS_NORMALIZED_CPU_USER\"\n    ],\n    \"PROJ\": \"Guillaume Picard\",\n    \"estimateMode\": \"value\",\n    \"granularity\": \"PT1M\",\n    \"period\": \"PT10M\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/accesses/TO7/toProm",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"accesses",
+						"TO7",
+						"toProm"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET /accesses/toProm",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/accesses/toProm",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"accesses",
+						"toProm"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
